@@ -8,6 +8,8 @@
 #include "Shader.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexArray.h"
+#include "VertexBufferLayout.h"
 
 /* 调整视口的回调函数 */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -72,19 +74,17 @@ int main()
     };
 
     /* 创建并绑定顶点数组对象 */
-    unsigned int VAO;
-    GLCall(glGenVertexArrays(1, &VAO));
-    GLCall(glBindVertexArray(VAO));
+    VertexArray va;
 
     /* 创建并绑定顶点缓冲对象 */
     VertexBuffer vb(vertices, sizeof(vertices));
-    vb.Bind();
 
     IndexBuffer ib(indices,6);
-    ib.Bind();
-    /* 告诉OpenGL该如何解析顶点数据 */
-    GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
-    GLCall(glEnableVertexAttribArray(0));
+
+    VertexBufferLayout layout;
+    layout.Push<float>(3);
+
+    va.AddBuffer(vb, layout);
 
     /* 创建一个着色器对象 */
     Shader shader("res/shaders/Basic.shader");
@@ -103,7 +103,7 @@ int main()
 
         /* 渲染 ... */
         shader.Bind();
-        GLCall(glBindVertexArray(VAO));
+        va.Bind();
         vb.Bind();
         ib.Bind();
 
