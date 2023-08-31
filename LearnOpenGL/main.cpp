@@ -7,6 +7,7 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 /* 调整视口的回调函数 */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -79,11 +80,8 @@ int main()
     VertexBuffer vb(vertices, sizeof(vertices));
     vb.Bind();
 
-    unsigned int IBO;
-    GLCall(glGenBuffers(1, &IBO));
-    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
-    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
-
+    IndexBuffer ib(indices,6);
+    ib.Bind();
     /* 告诉OpenGL该如何解析顶点数据 */
     GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
     GLCall(glEnableVertexAttribArray(0));
@@ -107,7 +105,7 @@ int main()
         shader.Bind();
         GLCall(glBindVertexArray(VAO));
         vb.Bind();
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
+        ib.Bind();
 
         timeValue = glfwGetTime();
         greenValue = (sin(timeValue) / 2.0f) + 0.5f;
