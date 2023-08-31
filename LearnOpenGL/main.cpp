@@ -6,7 +6,7 @@
 
 #include "Renderer.h"
 #include "Shader.h"
-
+#include "VertexBuffer.h"
 
 /* 调整视口的回调函数 */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -76,12 +76,9 @@ int main()
     GLCall(glBindVertexArray(VAO));
 
     /* 创建并绑定顶点缓冲对象 */
-    unsigned int VBO;
-    GLCall(glGenBuffers(1, &VBO));
-    GLCall(glBindBuffer(GL_ARRAY_BUFFER,VBO));
-    /* 将顶点数据复制到缓冲区 */
-    GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
-    
+    VertexBuffer vb(vertices, sizeof(vertices));
+    vb.Bind();
+
     unsigned int IBO;
     GLCall(glGenBuffers(1, &IBO));
     GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
@@ -109,7 +106,7 @@ int main()
         /* 渲染 ... */
         shader.Bind();
         GLCall(glBindVertexArray(VAO));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+        vb.Bind();
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
 
         timeValue = glfwGetTime();
