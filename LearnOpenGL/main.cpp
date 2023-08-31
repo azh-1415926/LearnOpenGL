@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "Renderer.h"
+
 /* 存储顶点着色器、片段着色器 */
 struct ShaderSource
 {
@@ -44,22 +46,22 @@ ShaderSource ParseShaderSource(const std::string& filepath)
 /* 编译着色器 */
 unsigned int CompileShader(const std::string& source,unsigned int type)
 {
-    unsigned int id = glCreateShader(type);
+    GLCall(unsigned int id = glCreateShader(type));
     const char* str = source.c_str();
-    glShaderSource(id, 1, &str, nullptr);
-    glCompileShader(id);
+    GLCall(glShaderSource(id, 1, &str, nullptr));
+    GLCall(glCompileShader(id));
     int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+    GLCall(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
     if (result == GL_FALSE)
     {
         int length;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+        GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
         char* message = (char*)alloca(sizeof(char) * length);
-        glGetShaderInfoLog(id, length, &length, message);
+        GLCall(glGetShaderInfoLog(id, length, &length, message));
         std::cout << "Failed to compile " <<
             (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!\n";
         std::cout << message << std::endl;
-        glDeleteShader(id);
+        GLCall(glDeleteShader(id));
         return 0;
     }
     return id;
@@ -68,14 +70,14 @@ unsigned int CompileShader(const std::string& source,unsigned int type)
 /* 创建着色器程序 */
 unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
 {
-    unsigned int program = glCreateProgram();
-    unsigned int vs = CompileShader(vertexShader, GL_VERTEX_SHADER);
-    unsigned int fs = CompileShader(fragmentShader, GL_FRAGMENT_SHADER);
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glDeleteShader(vs);
-    glDeleteShader(fs);
+    GLCall(unsigned int program = glCreateProgram());
+    GLCall(unsigned int vs = CompileShader(vertexShader, GL_VERTEX_SHADER));
+    GLCall(unsigned int fs = CompileShader(fragmentShader, GL_FRAGMENT_SHADER));
+    GLCall(glAttachShader(program, vs));
+    GLCall(glAttachShader(program, fs));
+    GLCall(glLinkProgram(program));
+    GLCall(glDeleteShader(vs));
+    GLCall(glDeleteShader(fs));
     return program;
 }
 
@@ -129,26 +131,38 @@ int main()
     /* 绘制三角形所用的顶点数据 */
     float vertices[] =
     {
-        -0.5f, -0.5f ,0.0f,
-         0.5f, -0.5f ,0.0f,
-         0.0f,  0.5f ,0.0f
+        0.5f, 0.5f, 0.0f,   // 右上角
+        0.5f, -0.5f, 0.0f,  // 右下角
+        -0.5f, -0.5f, 0.0f, // 左下角
+        -0.5f, 0.5f, 0.0f   // 左上角
+    };
+
+    unsigned int indices[] =
+    {
+        0,1,3,
+        1,2,3
     };
 
     /* 创建并绑定顶点数组对象 */
     unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    GLCall(glGenVertexArrays(1, &VAO));
+    GLCall(glBindVertexArray(VAO));
 
     /* 创建并绑定顶点缓冲对象 */
     unsigned int VBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER,VBO);
+    GLCall(glGenBuffers(1, &VBO));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER,VBO));
     /* 将顶点数据复制到缓冲区 */
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
     
+    unsigned int IBO;
+    GLCall(glGenBuffers(1, &IBO));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
+    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
+
     /* 告诉OpenGL该如何解析顶点数据 */
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+    GLCall(glEnableVertexAttribArray(0));
 
     /* 创建一个着色器程序 */
     ShaderSource source = ParseShaderSource("res/shaders/Basic.shader");
@@ -158,22 +172,23 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         /* 设置用于清屏的颜色、清屏 */
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        GLCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
+        GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
         /* 输入 */
         processInput(window);
 
         /* 渲染 ... */
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        GLCall(glUseProgram(shaderProgram));
+        GLCall(glBindVertexArray(VAO));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO));
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
 
         /* 监听事件、交换缓冲 */
         glfwPollEvents();
         glfwSwapBuffers(window);
     }
-
     /* 释放资源 */
     glfwTerminate();
     return 0;
