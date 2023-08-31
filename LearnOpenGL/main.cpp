@@ -50,6 +50,65 @@ int main()
     /* 注册视口变化回调函数 */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
+    /* 绘制三角形所用的顶点数据 */
+    float vertices[] =
+    {
+        -0.5f, -0.5f ,0.0f,
+         0.5f, -0.5f ,0.0f,
+         0.0f,  0.5f ,0.0f
+    };
+
+    /* 创建并绑定顶点数组对象 */
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    /* 创建并绑定顶点缓冲对象 */
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER,VBO);
+    /* 将顶点数据复制到缓冲区 */
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    
+    /* 告诉OpenGL该如何解析顶点数据 */
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    /* 创建顶点着色器、片段着色器 */
+    const char* vertexShaderSource = "#version 330 core\n"
+        "layout (location = 0) in vec3 aPos;\n"
+        "void main()\n"
+        "{\n"
+        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "}\0";
+
+    const char* fragmentShaderrSource = "#version 330 core\n"
+        "out vec4 FragColor;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "}\n";
+
+    /* 编译顶点着色器、片段着色器 */
+    unsigned int vertexShader=glCreateShader(GL_VERTEX_SHADER);
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+    glShaderSource(fragmentShader, 1, &fragmentShaderrSource, nullptr);
+    glCompileShader(vertexShader);
+    glCompileShader(fragmentShader);
+
+    /* 创建一个程序，链接顶点着色器、片段着色器，成为着色器程序 */
+    unsigned int shaderProgram;
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    /* 链接到程序 */
+    glLinkProgram(shaderProgram);
+    /* 释放着色器 */
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
     /* 循环渲染，glfwWindowShouldClose 、检查 GLFW 是否被要求退出 */
     while (!glfwWindowShouldClose(window))
     {
@@ -61,6 +120,9 @@ int main()
         processInput(window);
 
         /* 渲染 ... */
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         /* 监听事件、交换缓冲 */
         glfwPollEvents();
