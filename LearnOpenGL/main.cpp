@@ -67,6 +67,7 @@ int main()
         -0.5f, 0.5f, 0.0f   // 左上角
     };
 
+    /* 缓冲区的下标 */
     unsigned int indices[] =
     {
         0,1,3,
@@ -79,11 +80,14 @@ int main()
     /* 创建并绑定顶点缓冲对象 */
     VertexBuffer vb(vertices, sizeof(vertices));
 
+    /* 创建并绑定索引缓冲对象 */
     IndexBuffer ib(indices,6);
 
+    /* 创建缓冲布局对象，设置绘制时 3 个 float 数据绘制一个坐标 */
     VertexBufferLayout layout;
     layout.Push<float>(3);
 
+    /* 添加缓冲到顶点数组对象 */
     va.AddBuffer(vb, layout);
 
     /* 创建一个着色器对象 */
@@ -91,26 +95,26 @@ int main()
     float timeValue;
     float greenValue;
 
+    /* 创建绘制对象 */
+    Renderer renderer;
+    /* 设置用于清屏的颜色 */
+    GLCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
+
     /* 循环渲染，glfwWindowShouldClose 、检查 GLFW 是否被要求退出 */
     while (!glfwWindowShouldClose(window))
     {
-        /* 设置用于清屏的颜色、清屏 */
-        GLCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
-        GLCall(glClear(GL_COLOR_BUFFER_BIT));
+        /* 清屏*/
+        renderer.Clear();
 
         /* 输入 */
         processInput(window);
 
         /* 渲染 ... */
-        shader.Bind();
-        va.Bind();
-        vb.Bind();
-        ib.Bind();
-
         timeValue = glfwGetTime();
         greenValue = (sin(timeValue) / 2.0f) + 0.5f;
         shader.setUniform4f("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
-        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+
+        renderer.Draw(va, ib, shader);
 
         /* 监听事件、交换缓冲 */
         glfwPollEvents();
