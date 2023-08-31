@@ -21,15 +21,15 @@ Texture::Texture(const std::string& path)
 	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE,m_LocalBuffer));
 	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 
-	std::cout <<"Path:"<<m_FilePath << ",Width: " << m_Width << ",Height:" << m_Height << ",BPP:" << m_BPP << std::endl;
+	//std::cout <<"Path:"<<m_FilePath << ",Width: " << m_Width << ",Height:" << m_Height << ",BPP:" << m_BPP << std::endl;
+	//std::cout << "Image:" << m_LocalBuffer << std::endl;
 
-	std::cout << "Image:" << m_LocalBuffer << std::endl;
 	if (m_LocalBuffer)
 		stbi_image_free(m_LocalBuffer);
 }
 Texture::~Texture()
 {
-	glDeleteTextures(1,&m_Renderer_ID);
+	GLCall(glDeleteTextures(1,&m_Renderer_ID));
 }
 void Texture::Bind(unsigned int slot) const
 {

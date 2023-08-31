@@ -10,6 +10,7 @@
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
+#include "Texture.h"
 
 /* 调整视口的回调函数 */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -61,17 +62,17 @@ int main()
     /* 绘制三角形所用的顶点数据 */
     float vertices[] =
     {
-        0.5f, 0.5f, 0.0f,   // 右上角
-        0.5f, -0.5f, 0.0f,  // 右下角
-        -0.5f, -0.5f, 0.0f, // 左下角
-        -0.5f, 0.5f, 0.0f   // 左上角
+        -0.5f,-0.5f,0.0f,0.0f,
+        0.5f,-0.5f,1.0f,0.0f,
+        0.5f,0.5f,1.0f,1.0f,
+        -0.5f,0.5f,0.0f,1.0f
     };
 
     /* 缓冲区的下标 */
     unsigned int indices[] =
     {
-        0,1,3,
-        1,2,3
+        0,1,2,
+        2,3,0
     };
 
     /* 创建并绑定顶点数组对象 */
@@ -83,17 +84,21 @@ int main()
     /* 创建并绑定索引缓冲对象 */
     IndexBuffer ib(indices,6);
 
-    /* 创建缓冲布局对象，设置绘制时 3 个 float 数据绘制一个坐标 */
+    /* 创建缓冲布局对象，设置绘制时 4 个 float 数据绘制一个坐标 */
     VertexBufferLayout layout;
-    layout.Push<float>(3);
+    layout.Push<float>(2);
+    layout.Push<float>(2);
 
     /* 添加缓冲到顶点数组对象 */
     va.AddBuffer(vb, layout);
 
     /* 创建一个着色器对象 */
     Shader shader("res/shaders/Basic.shader");
-    float timeValue;
-    float greenValue;
+
+    /* 加载图片作为纹理 */
+    Texture texture("res/textures/keli.jpg");
+    texture.Bind();
+    shader.setUniform1i("u_Texture", 0);
 
     /* 创建绘制对象 */
     Renderer renderer;
@@ -110,10 +115,6 @@ int main()
         processInput(window);
 
         /* 渲染 ... */
-        timeValue = glfwGetTime();
-        greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-        shader.setUniform4f("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
-
         renderer.Draw(va, ib, shader);
 
         /* 监听事件、交换缓冲 */
