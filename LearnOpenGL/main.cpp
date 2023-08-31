@@ -2,6 +2,82 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <string.h>
+#include <fstream>
+#include <sstream>
+
+/* 存储顶点着色器、片段着色器 */
+struct ShaderSource
+{
+    std::string vertexShader;
+    std::string fragmentShader;
+};
+
+/* 读取文件中的着色器 */
+ShaderSource ParseShaderSource(const std::string& filepath)
+{
+    std::ifstream stream(filepath);
+    enum ShaderType
+    {
+        NONE = -1, VERRTEX = 0, FRAGMENT = 1
+    };
+    ShaderType type=ShaderType::NONE;
+    std::stringstream ss[2];
+    std::string line;
+    while (getline(stream,line))
+    {
+        if (line.find("#shader") != std::string::npos)
+        {
+            if (line.find("vertex") != std::string::npos)
+                type = ShaderType::VERRTEX;
+            else if (line.find("fragment") != std::string::npos)
+                type = ShaderType::FRAGMENT;
+        }
+        else
+        {
+            ss[(int)type] << line << "\n";;
+        }
+    }
+    return { ss[0].str(),ss[1].str() };
+}
+
+/* 编译着色器 */
+unsigned int CompileShader(const std::string& source,unsigned int type)
+{
+    unsigned int id = glCreateShader(type);
+    const char* str = source.c_str();
+    glShaderSource(id, 1, &str, nullptr);
+    glCompileShader(id);
+    int result;
+    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+    if (result == GL_FALSE)
+    {
+        int length;
+        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+        char* message = (char*)alloca(sizeof(char) * length);
+        glGetShaderInfoLog(id, length, &length, message);
+        std::cout << "Failed to compile " <<
+            (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!\n";
+        std::cout << message << std::endl;
+        glDeleteShader(id);
+        return 0;
+    }
+    return id;
+}
+
+/* 创建着色器程序 */
+unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
+{
+    unsigned int program = glCreateProgram();
+    unsigned int vs = CompileShader(vertexShader, GL_VERTEX_SHADER);
+    unsigned int fs = CompileShader(fragmentShader, GL_FRAGMENT_SHADER);
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+    return program;
+}
 
 /* 调整视口的回调函数 */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -74,40 +150,9 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    /* 创建顶点着色器、片段着色器 */
-    const char* vertexShaderSource = "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
-
-    const char* fragmentShaderrSource = "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}\n";
-
-    /* 编译顶点着色器、片段着色器 */
-    unsigned int vertexShader=glCreateShader(GL_VERTEX_SHADER);
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glShaderSource(fragmentShader, 1, &fragmentShaderrSource, nullptr);
-    glCompileShader(vertexShader);
-    glCompileShader(fragmentShader);
-
-    /* 创建一个程序，链接顶点着色器、片段着色器，成为着色器程序 */
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    /* 链接到程序 */
-    glLinkProgram(shaderProgram);
-    /* 释放着色器 */
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    /* 创建一个着色器程序 */
+    ShaderSource source = ParseShaderSource("res/shaders/Basic.shader");
+    unsigned int shaderProgram = CreateShader(source.vertexShader,source.fragmentShader);
 
     /* 循环渲染，glfwWindowShouldClose 、检查 GLFW 是否被要求退出 */
     while (!glfwWindowShouldClose(window))
