@@ -12,6 +12,10 @@
 #include "VertexBufferLayout.h"
 #include "Texture.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 /* 调整视口的回调函数 */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -104,6 +108,9 @@ int main()
     Renderer renderer;
     /* 设置用于清屏的颜色 */
     GLCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
+
+    /* 矩阵变换测试 */
+    glm::mat4 trans=glm::mat4(1.0f);
 
     /* 循环渲染，glfwWindowShouldClose 、检查 GLFW 是否被要求退出 */
     while (!glfwWindowShouldClose(window))

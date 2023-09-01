@@ -26,10 +26,10 @@
       <UniqueIdentifier>{dea03352-ac83-45c4-9f69-3068da6457af}</UniqueIdentifier>
     </Filter>
     <Filter Include="vendor\glm">
-      <UniqueIdentifier>{924df564-5136-41fc-b7a2-b10767165fe8}</UniqueIdentifier>
+      <UniqueIdentifier>{2d0097a0-ab6e-4a68-a4c5-ebe46c7e90dc}</UniqueIdentifier>
     </Filter>
     <Filter Include="vendor\glm\gtc">
-      <UniqueIdentifier>{384caf7d-652e-4415-ade0-e950eac915af}</UniqueIdentifier>
+      <UniqueIdentifier>{c10716b4-7d7b-4afb-a557-36849d2bd2d3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -65,6 +65,9 @@
     <None Include="res\shaders\Basic.shader">
       <Filter>res\shaders</Filter>
     </None>
+    <None Include="vendor\glm\gtc\type_ptr.inl">
+      <Filter>vendor\glm\gtc</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -95,9 +98,6 @@
       <Filter>vendor\glm</Filter>
     </ClInclude>
     <ClInclude Include="vendor\glm\gtc\matrix_transform.hpp">
-      <Filter>vendor\glm\gtc</Filter>
-    </ClInclude>
-    <ClInclude Include="vendor\glm\gtc\type_ptr.hpp">
       <Filter>vendor\glm\gtc</Filter>
     </ClInclude>
   </ItemGroup>

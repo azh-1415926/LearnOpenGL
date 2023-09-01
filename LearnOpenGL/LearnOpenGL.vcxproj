@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
+    <None Include="vendor\glm\gtc\type_ptr.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IndexBuffer.h" />
@@ -153,7 +154,6 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="vendor\glm\glm.hpp" />
     <ClInclude Include="vendor\glm\gtc\matrix_transform.hpp" />
-    <ClInclude Include="vendor\glm\gtc\type_ptr.hpp" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
