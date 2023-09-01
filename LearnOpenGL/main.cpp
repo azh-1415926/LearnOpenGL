@@ -110,7 +110,22 @@ int main()
     GLCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
 
     /* 矩阵变换测试 */
-    glm::mat4 trans=glm::mat4(1.0f);
+    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    // 译注：下面就是矩阵初始化的一个例子，如果使用的是0.9.9及以上版本
+    // 下面这行代码就需要改为:
+    glm::mat4 trans = glm::mat4(1.0f);
+    // 之后将不再进行提示
+    //glm::mat4 trans;
+    //trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+
+    glm::value_ptr(trans);
+
+    vec = trans * vec;
+    std::cout << vec.x << vec.y << vec.z << std::endl;
+
+    shader.setUniformMatrix4fv("transform", trans);
 
     /* 循环渲染，glfwWindowShouldClose 、检查 GLFW 是否被要求退出 */
     while (!glfwWindowShouldClose(window))

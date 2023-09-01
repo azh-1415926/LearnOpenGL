@@ -45,6 +45,12 @@ void Shader::setUniform4f(const std::string& name, float v0, float v1, float v2,
     GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 }
 
+void  Shader::setUniformMatrix4fv(const std::string& name, const glm::mat4& trans)
+{
+    Bind();
+    GLCall(glUniformMatrix4fv(GetUniformLocation(name),1,GL_FALSE,glm::value_ptr(trans)));
+}
+
 /* 读取文件中的着色器 */
 ShaderProgramSource Shader::ParseShader(const std::string& filepath)
 {
