@@ -25,6 +25,12 @@
     <Filter Include="vendor\stb_image">
       <UniqueIdentifier>{dea03352-ac83-45c4-9f69-3068da6457af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vendor\glm">
+      <UniqueIdentifier>{924df564-5136-41fc-b7a2-b10767165fe8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\glm\gtc">
+      <UniqueIdentifier>{384caf7d-652e-4415-ade0-e950eac915af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -84,6 +90,15 @@
     </ClInclude>
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\glm\glm.hpp">
+      <Filter>vendor\glm</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\glm\gtc\matrix_transform.hpp">
+      <Filter>vendor\glm\gtc</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\glm\gtc\type_ptr.hpp">
+      <Filter>vendor\glm\gtc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
