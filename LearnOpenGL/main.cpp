@@ -111,11 +111,22 @@ int main()
 
     /* 矩阵变换测试 */
     /* glm 0.9.9 */
-    glm::mat4 trans = glm::mat4(1.0f);
+    glm::mat4 trans(1.0f);
     trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
     trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+    /* 模型矩阵 */
+    glm::mat4 model(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    /* 观察矩阵 */
+    glm::mat4 view(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    /* 投影矩阵 */
+    glm::mat4 projection(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    shader.setUniformMatrix4fv("transform", trans);
+    shader.setUniformMatrix4fv("model", model);
+    shader.setUniformMatrix4fv("view", view);
+    shader.setUniformMatrix4fv("projection", projection);
 
     /* 循环渲染，glfwWindowShouldClose 、检查 GLFW 是否被要求退出 */
     while (!glfwWindowShouldClose(window))
@@ -127,8 +138,8 @@ int main()
         processInput(window);
 
         /* 渲染 ... */
-        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-        shader.setUniformMatrix4fv("transform", trans);
+        /*trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        shader.setUniformMatrix4fv("transform", trans);*/
         renderer.Draw(va, ib, shader);
 
         /* 监听事件、交换缓冲 */
